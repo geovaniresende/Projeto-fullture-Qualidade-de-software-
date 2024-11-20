@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciador de Tarefas</title>
+<style>
+ 
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+
+    h1 {
+        color: #0f4711;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #taskForm {
+        background-color: #ac935b; 
+        border-radius: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 500px;
+    }
+
+    #taskForm h2 {
+        color: #0f4711;
+        margin-bottom: 10px;
+    }
+
+    #taskForm input[type="text"],
+    #taskForm input[type="date"],
+    #taskForm select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    #taskForm button {
+        cursor: pointer;
+        background-color: #0f4711;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    #taskForm button:hover {
+        background-color: #83d487;
+    }
+
+    #taskList {
+        background-color: #e0c68d; 
+        border-radius: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 800px;
+    }
+
+    #taskList h2 {
+        color: #0f4711;
+        margin-bottom: 10px;
+    }
+
+    #completedTaskList {
+        background-color: #e0c68d; 
+        border-radius: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 800px;
+    }
+
+    #completedTaskList h2 {
+        color: #0f4711;
+        margin-bottom: 10px;
+    }
+
+    .task-container {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f0e9d9;
+        color: #000; 
+    }
+
+    .task p {
+        margin: 0;
+        padding-bottom: 5px;
+        color: #000; 
+    }
+
+    .task button {
+        cursor: pointer;
+        background-color: #0f4711;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .task button:hover {
+        background-color: #0f4711;
+    }
+</style>
+</head>
+<body>
+<h1>Gerenciador de Tarefas</h1>
+<div id="taskForm">
+    <h2>Criar Tarefa</h2>
+    <input type="text" id="title" placeholder="Título">
+    <input type="text" id="description" placeholder="Descrição">
+    <input type="date" id="deadline" placeholder="Dia/Mês/Ano">
+    <select id="status">
+        <option value="pending">Pendente</option>
+        <option value="completed">Concluída</option>
+    </select>
+    <button onclick="createTask()">Criar</button>
+</div>
+<div id="taskList">
+    <h2>Tarefas Pendentes</h2>
+</div>
+<div id="completedTaskList">
+    <h2>Tarefas Concluídas</h2>
+</div>
+<script>
+    let tasks = [];
+    let completedTasks = [];
+
+    function createTask() {
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const deadline = document.getElementById('deadline').value;
+        const status = document.getElementById('status').value;
+
+        if (title && deadline) {
+            const task = {
+                title,
+                description,
+                deadline,
+                status,
+                completedAt: null 
+            };
+
+            if (status === 'pending') {
+                tasks.push(task);
+            } else {
+                task.completedAt = new Date().toLocaleString();
+                completedTasks.push(task);
+            }
+
+            displayTasks();
+            clearForm();
+        } else {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+        }
+    }
+
+    function displayTasks() {
+        const taskList = document.getElementById('taskList');
+        const completedTaskList = document.getElementById('completedTaskList');
+
+        taskList.innerHTML = '<h2>Tarefas Pendentes</h2>';
+        completedTaskList.innerHTML = '<h2>Tarefas Concluídas</h2>';
+
+        tasks.forEach(task => {
+            const taskContainer = createTaskContainer(task);
+            taskList.appendChild(taskContainer);
+        });
+
+        completedTasks.forEach(task => {
+            const taskContainer = createTaskContainer(task);
+            completedTaskList.appendChild(taskContainer);
+        });
+    }
+
+    function createTaskContainer(task) {
+        const taskContainer = document.createElement('div');
+        taskContainer.classList.add('task-container');
+
+        const taskElement = document.createElement('div');
+        taskElement.classList.add('task');
+        taskElement.innerHTML = `
+            <p><strong>Título:</strong> ${task.title}</p>
+            <p><strong>Descrição:</strong> ${task.description ? task.description : 'N/A'}</p>
+            <p><strong>Prazo:</strong> ${task.deadline}</p>
+            <p><strong>Status:</strong> ${task.status}</p>
+            <p><strong>Data de Conclusão:</strong> ${task.completedAt ? task.completedAt : 'N/A'}</p>
+        `;
+
+        const actionButton = document.createElement('button');
+        actionButton.innerText = task.status === 'pending' ? 'Concluir' : 'Desmarcar';
+        actionButton.onclick = () => toggleTaskStatus(task);
+
+        taskContainer.appendChild(taskElement);
+        taskContainer.appendChild(actionButton);
+
+        return taskContainer;
+    }
+
+    function toggleTaskStatus(task) {
+        if (task.status === 'pending') {
+            task.status = 'completed';
+            task.completedAt = new Date().toLocaleString(); 
+            completedTasks.push(task);
+            tasks = tasks.filter(t => t !== task);
+        } else {
+            task.status = 'pending';
+            task.completedAt = null; 
+            tasks.push(task);
+            completedTasks = completedTasks.filter(t => t !== task);
+        }
+
+        displayTasks();
+    }
+
+    function clearForm() {
+        document.getElementById('title').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('deadline').value = '';
+        document.getElementById('status').value = 'pending';
+    }
+
+    displayTasks();
+</script>
+</body>
+</html>
